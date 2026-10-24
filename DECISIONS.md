@@ -69,6 +69,12 @@ Training and validation loss are printed each epoch. The point where
 validation loss starts rising while training loss keeps falling marks the
 start of memorization and determines when to stop training.
 
+**venv for the virtual environment.**
+Compared venv, uv, Conda and Poetry. venv is built into Python, so nothing
+extra has to be installed or explained at the exam. Dependencies are listed in
+`requirements.txt`, the file name that `pip install -r` and IDEs expect. The
+environment lives in `.venv/`, which is in `.gitignore`.
+
 ---
 
 ## Demo

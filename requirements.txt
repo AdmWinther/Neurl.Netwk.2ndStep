@@ -1,0 +1,8 @@
+# Python dependencies for the IMDB sentiment classifier.
+# Install with: pip install -r requirements.txt
+# Pinned by hand: only direct dependencies are listed.
+# The PyTorch CPU index is needed because the default index has no torch build for this Python version.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.14.1
+numpy==2.5.4
+datasets==5.1.0

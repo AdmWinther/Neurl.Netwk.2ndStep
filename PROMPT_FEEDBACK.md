@@ -9,3 +9,7 @@
 - **Issue:** The `/init` request writes `CLAUDE.md` directly, which conflicts with the rule "Propose before you write."
   - **Justification:** Asking for a proposal first would have avoided overwriting the existing project brief.
   - **Status:** New
+
+- **Issue:** The request asks to "explore the project and propose the next step" and also says "you now must make the virtual environment ... and make requirements.txt". It is unclear whether those files should be created now or only proposed.
+  - **Justification:** CLAUDE.md requires a proposal and approval before any write. Stating "propose only" or "create them" would remove the guess. The remembered state was also partly off: `requirements.txt` already exists, and no `.venv` exists yet.
+  - **Status:** New
