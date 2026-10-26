@@ -76,6 +76,12 @@ extra has to be installed or explained at the exam. Dependencies are listed in
 `requirements.txt`, the file name that `pip install -r` and IDEs expect. The
 environment lives in `.venv/`, which is in `.gitignore`.
 
+**Word-level tokenization for the first version.** *2026-10-25*
+Reviews are split into words on spaces and punctuation, and words are
+lowercased. Chosen because it is simple to explain and needs no extra
+library. Subword tokenization (BPE or WordPiece) is deferred; see
+FUTURE_IMPROVEMENTS.md, "Subword tokenization".
+
 **Duplicate reviews between training and test (IMDB dataset).** *2026-10-25*
 123 of the 25,000 test reviews have exact copies in the training split.
 The dataset contains these duplicates; the project did not create them.
