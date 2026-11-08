@@ -81,6 +81,8 @@ Reviews are split into words on spaces and punctuation, and words are
 lowercased. Chosen because it is simple to explain and needs no extra
 library. Subword tokenization (BPE or WordPiece) is deferred; see
 FUTURE_IMPROVEMENTS.md, "Subword tokenization".
+Punctuation marks are kept as separate tokens, because marks such as `!`
+can signal sentiment.
 
 **Duplicate reviews between training and test (IMDB dataset).** *2026-10-25*
 123 of the 25,000 test reviews have exact copies in the training split.
