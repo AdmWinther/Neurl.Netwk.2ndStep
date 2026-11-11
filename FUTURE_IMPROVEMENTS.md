@@ -64,3 +64,38 @@ Entry format:
 - **Exam angle:** "Why not a transformer?" Answer: the project's aim is to
   show how AI is used and to explain every part of the model. A pretrained
   model is harder to explain, and the choice is documented in DECISIONS.md.
+
+---
+
+## Save the best validation epoch instead of the last epoch
+- **Status:** Open
+- **Idea:** After each epoch, `train_model` compares the validation loss with the
+  lowest value seen so far. When the new value is lower, it keeps a copy of the
+  model's numbers. After the last epoch, it restores that copy, so the saved
+  model is the one with the lowest validation loss.
+- **How it works today:** `train_model` runs all 10 epochs and does not keep
+  track of the best one. The model that `save_model` writes is the one after
+  the last epoch (epoch 10). In the first run, the validation loss was lowest at
+  epoch 9 (0.2916) and rose slightly at epoch 10 (0.2937). The saved model is
+  therefore the one after the slight rise, although the difference is small.
+- **How it should work after the update:** `train_model` remembers the epoch
+  with the lowest validation loss and prints which epoch that was. At the end
+  it restores the weights from that epoch before `save_model` is called. The
+  test set is still not involved, because the choice is made only from the
+  validation loss.
+- **Why deferred:** Chosen against for the first version. Saving the last epoch
+  is simpler to explain, and the difference in this run is small (about 0.002
+  in loss and 0.06 percentage points in accuracy, which is slightly better
+  without the change). The change adds state to the training loop and a copy of
+  the weights.
+- **Related decision:** the choice to save the last epoch, which is pending an
+  entry in DECISIONS.md.
+- **What to learn / try:** Search for "early stopping" and "model checkpointing".
+  Run training with a patience setting, which stops once the validation loss has
+  not improved for a fixed number of epochs, and compare it with the best-epoch
+  method.
+- **Exam angle:** "How did you decide when to stop training?" Answer: the
+  validation loss is printed each epoch. The first version saves the final
+  epoch. The improvement would save the epoch with the lowest validation loss,
+  so the choice uses only the validation data. Mention the epoch 9 and epoch 10
+  numbers from the first run.

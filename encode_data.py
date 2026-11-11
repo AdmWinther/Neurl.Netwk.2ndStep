@@ -134,14 +134,22 @@ def make_loader(ids: torch.Tensor, labels: torch.Tensor, batch_size: int, shuffl
 def main() -> None:
     train, validation = load_train_validation_split()
     vocab = build_vocabulary(train["text"], VOCAB_SIZE)
+    print("\n")
     print(f"vocabulary size: {len(vocab)}")
+    
 
     for name, split in [("train", train), ("validation", validation)]:
         tokens = [token for text in split["text"] for token in tokenize(text)]
         unknown = sum(1 for token in tokens if token not in vocab)
+        print("\n")
         print(f"{name}: {unknown / len(tokens):.2%} of words are unknown")
 
-    print(encode(train[0]["text"], vocab)[:20])
+    # The first 20 elements in the vocabulary are PAD, UNK, and the 18 most common words in the training set.
+    print(f"\nfirst 20 words in the vocabulary and their IDs: {list(vocab.items())[:20]}")
+
+    # Encode the first review in the training set and print the first 20 IDs.
+    print(f"\nThird review for example is: {train[2]['text']}")
+    print(f"\nThe words of the third review encodes itno {encode(train[2]["text"], vocab)[:20]}")
 
 
 if __name__ == "__main__":

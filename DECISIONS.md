@@ -4,7 +4,7 @@ Design and scope decisions for the IMDB sentiment classifier exam project
 ("Application of AI"). Each entry records what was decided and why, so the
 reasoning survives between sessions and can be defended at the exam.
 
-Last updated: 2026-10-25
+Last updated: 2026-11-08
 
 ---
 
@@ -91,6 +91,13 @@ They stay in the test evaluation, and the report states their number.
 Effect: the test accuracy may be slightly high for those 123 reviews,
 about 0.5% of the test set. Training code only reads the train split, so
 the test reviews are not used for training.
+
+**Save the last epoch, not the best validation epoch.** *2026-11-08*
+The model saved for the demo and the test evaluation is the one after the
+last epoch (10). The lowest validation loss was at epoch 9, but the
+difference is small, and saving the last epoch is simpler to explain. The
+alternative is in FUTURE_IMPROVEMENTS.md, "Save the best validation epoch
+instead of the last epoch".
 
 ---
 
