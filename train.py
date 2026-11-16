@@ -1,8 +1,6 @@
 """Train the sentiment model: adjust its numbers so its predictions match the labels."""
 
 import copy
-import json
-from pathlib import Path
 
 import torch
 from torch import nn
@@ -10,6 +8,7 @@ from torch.utils.data import DataLoader
 
 from encode_data import VOCAB_SIZE, build_vocabulary, encode_split, make_loader
 from model import SentimentModel
+from model_io import save_model
 from split_data import load_train_validation_split
 
 SEED = 42  # fixed seed, so every run gives the same result
@@ -18,7 +17,7 @@ EMBEDDING_DIM = 100  # length of each word vector
 LEARNING_RATE = 0.001  # how big each adjustment step is (Adam optimizer)
 PATIENCE = 3  # stop after this many epochs in a row without a lower validation loss
 MAX_EPOCHS = 30  # upper limit, in case the validation loss keeps improving
-MODEL_FOLDER = Path("models")
+MODEL_NAME = "latest"  # the name under which main saves the model, in models/latest/
 
 
 # Function: train_one_epoch
@@ -95,11 +94,13 @@ def evaluate(model: SentimentModel, loader: DataLoader, loss_fn: nn.Module) -> t
 #   val_loader: the DataLoader with the validation batches.
 #   loss_fn: the function that measures how wrong the predictions are.
 #   optimizer: the method that adjusts the model's numbers.
-# Output: None, the results are printed.
+# Output:
+#   tuple[float, float]: the validation loss and the validation accuracy of the best epoch.
 def train_model(model: SentimentModel, train_loader: DataLoader, val_loader: DataLoader,
-                loss_fn: nn.Module, optimizer: torch.optim.Optimizer) -> None:
+                loss_fn: nn.Module, optimizer: torch.optim.Optimizer) -> tuple[float, float]:
     # Keep track of the best epoch so far.
     best_val_loss = float("inf")
+    best_val_accuracy = 0.0
     best_epoch = 0
     best_weights = None
     epochs_without_improvement = 0
@@ -115,6 +116,7 @@ def train_model(model: SentimentModel, train_loader: DataLoader, val_loader: Dat
         # A lower validation loss than before: save this epoch's weights and reset the counter.
         if val_loss < best_val_loss:
             best_val_loss = val_loss
+            best_val_accuracy = val_accuracy
             best_epoch = epoch
             best_weights = copy.deepcopy(model.state_dict())
             epochs_without_improvement = 0
@@ -127,36 +129,35 @@ def train_model(model: SentimentModel, train_loader: DataLoader, val_loader: Dat
     # Go back to the best epoch's weights, not the weights of the last epoch.
     model.load_state_dict(best_weights)
     print(f"best epoch: {best_epoch} (validation loss {best_val_loss:.4f})")
+    return best_val_loss, best_val_accuracy
 
 
-# Function: save_model
-#   Saves the trained model and its vocabulary to disk, so the demo can load them later
-#   without training again. The vocabulary is saved as well, because the model only understands
-#   the word IDs from the vocabulary it was trained with.
+# Function: validate_model
+#   Measures a trained model on the 5,000 validation reviews. The test reviews are never used.
 # Parameters:
 #   model: the trained SentimentModel.
-#   vocab: the vocabulary the model was trained with.
-#   folder: the folder to save the two files in.
-# Output: None
-def save_model(model: SentimentModel, vocab: dict[str, int], folder: Path) -> None:
-    # Create the folder if it does not exist yet. parents=True also creates folders above it if needed.
-    folder.mkdir(parents=True, exist_ok=True)
+#   vocab: the vocabulary the model was trained with. It must be the model's own vocabulary,
+#          never one built from other reviews.
+# Output:
+#   tuple[float, float]: the validation loss and the validation accuracy.
+def validate_model(model: SentimentModel, vocab: dict[str, int]) -> tuple[float, float]:
+    # The training split is loaded too, but it is not needed here, so it is ignored with "_".
+    _, val_split = load_train_validation_split()
 
-    # state_dict() is only the learned numbers of the model, without the code that uses them.
-    torch.save(model.state_dict(), folder / "model.pt")
+    # Encode the validation reviews with the model's own vocabulary, in a fixed order (no shuffle).
+    val_loader = make_loader(*encode_split(val_split, vocab), batch_size=BATCH_SIZE, shuffle=False)
 
-    # The vocabulary is a dictionary from word to ID, which JSON can store as text.
-    # encoding="utf-8" makes sure letters outside English are saved correctly.
-    with open(folder / "vocab.json", "w", encoding="utf-8") as file:
-        json.dump(vocab, file)
+    # The same loss function as in training, so the number is comparable with the training output.
+    return evaluate(model, val_loader, nn.CrossEntropyLoss())
 
 
-# Function: main
-#   Runs the whole training: loads the data, builds the vocabulary, trains the model,
-#   and saves the model and its vocabulary to the models/ folder.
+# Function: train_new_model
+#   Creates a model, trains it with early stopping, and returns it together with its vocabulary.
+#   Nothing is saved to disk. The caller decides whether to save.
 # Parameters: None
-# Output: None
-def main() -> None:
+# Output:
+#   tuple[SentimentModel, dict[str, int]]: the trained model and the vocabulary it was trained with.
+def train_new_model() -> tuple[SentimentModel, dict[str, int]]:
     # Fix the random starting numbers of the model, so every run starts from the same place.
     torch.manual_seed(SEED)
 
@@ -173,9 +174,17 @@ def main() -> None:
     loss_fn = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
-    # Train, printing the losses each epoch, then save the result.
     train_model(model, train_loader, val_loader, loss_fn, optimizer)
-    save_model(model, vocab, MODEL_FOLDER)
+    return model, vocab
+
+
+# Function: main
+#   Trains a new model and saves it under MODEL_NAME in the models/ folder.
+# Parameters: None
+# Output: None
+def main() -> None:
+    model, vocab = train_new_model()
+    save_model(model, vocab, MODEL_NAME)
 
 
 if __name__ == "__main__":

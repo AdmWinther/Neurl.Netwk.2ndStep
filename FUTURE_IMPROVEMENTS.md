@@ -68,7 +68,7 @@ Entry format:
 ---
 
 ## Save the best validation epoch instead of the last epoch
-- **Status:** Open
+- **Status:** Done (2026-11-11), see DECISIONS.md, "Early stopping, and keeping the best validation epoch"
 - **Idea:** After each epoch, `train_model` compares the validation loss with the
   lowest value seen so far. When the new value is lower, it keeps a copy of the
   model's numbers. After the last epoch, it restores that copy, so the saved
@@ -99,3 +99,38 @@ Entry format:
   epoch. The improvement would save the epoch with the lowest validation loss,
   so the choice uses only the validation data. Mention the epoch 9 and epoch 10
   numbers from the first run.
+
+---
+
+## Overconfident predictions
+- **Status:** Open
+- **Idea:** The model gives almost every review a confidence of 100%, including
+  wrong answers such as "Not bad at all", because its two raw scores are about
+  -11.7 and +11.7. Methods that reduce overconfidence: temperature scaling
+  (dividing the scores by a number chosen on the validation set), label
+  smoothing, or stronger regularization during training.
+- **Why deferred:** The confidence is an honest output of the model as trained.
+  Fixing it changes the model's behaviour and needs its own validation step.
+- **Related decision:** "Command-line menu with prerequisite checks" in DECISIONS.md.
+- **What to learn / try:** Search for "temperature scaling" and "calibration".
+  Measure the confidence of wrong answers before and after the change.
+- **Exam angle:** "Why does the model say 100% when it is wrong?" Answer: the
+  model learned the training reviews very strongly, so its scores are large.
+  The accuracy is still about 87%, but the confidence is not reliable.
+
+---
+
+## Grid or random search for tuning
+- **Status:** Open
+- **Idea:** Instead of changing one setting at a time (vocabulary size, maximum
+  length, embedding size, learning rate), try combinations of them, either all of
+  them (grid search) or a random sample (random search).
+- **Why deferred:** One setting at a time is much faster, and it is enough to
+  see which setting matters most. Combinations would also fit the 5,000
+  validation reviews more closely.
+- **Related decision:** The validation tuning plan in the project's plan file.
+- **What to learn / try:** Search for "grid search" and "random search" in
+  scikit-learn's documentation, and compare how many runs each needs.
+- **Exam angle:** "How did you choose the settings?" Answer: validation accuracy
+  and loss, with one setting changed at a time and a noise check first. A full
+  search would find interactions between settings, at much higher cost.

@@ -94,11 +94,11 @@ def encode(text: str, vocab: dict[str, int], max_length: int = MAX_LENGTH) -> li
 #   vocab: a dictionary that maps each word to a unique ID.
 # Output:
 #   tuple[torch.Tensor, torch.Tensor]: the IDs (one row of MAX_LENGTH numbers per review) and the labels (one number per review).
-def encode_split(split: Dataset, vocab: dict[str, int]) -> tuple[torch.Tensor, torch.Tensor]:
-    # Encode each review into a list of IDs. Every list has the same length, MAX_LENGTH.
+def encode_split(split: Dataset, vocab: dict[str, int], max_length: int = MAX_LENGTH) -> tuple[torch.Tensor, torch.Tensor]:
+    # Encode each review into a list of IDs. Every list has the same length, max_length.
     all_ids = []
     for text in split["text"]:
-        all_ids.append(encode(text, vocab))
+        all_ids.append(encode(text, vocab, max_length))
 
     # Convert the Python lists into PyTorch tensors.
     # dtype=torch.long means whole numbers, which the embedding layer requires.

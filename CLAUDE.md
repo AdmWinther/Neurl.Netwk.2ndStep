@@ -35,10 +35,14 @@ For training, IMDB Movie Review sentiment dataset will be used. Part of the data
 - Anytime a feedback on a prompt is given, append the feedback to PROMPT_FEEDBACK.md and include date, the issue, and whether it was new, repeated, or improved
 
 ## 5. Repository status
-- The repo currently contains no source code. Update this section when code is added.
+- Source code exists: `download_data.py` (download), `split_data.py` (train/validation split), `encode_data.py` (vocabulary and encoding), `model.py` (the network), `train.py` (training, validation and saving the default model), `model_io.py` (saving and loading by name), `predict.py` (classify one review), `evaluate_test.py` (one-time test evaluation), `app.py` (the menu). Update this section when code is added.
 
 ## 6. Project constraints
 - Dataset: IMDB Movie Review sentiment (25,000 labelled reviews for training and validation, 25,000 for testing).
 - Split of the 25,000 training/validation reviews: 20,000 for training, 5,000 for validation.
 - The 25,000 test reviews are held out. Never train or tune on them.
-- Build, lint, and test commands will be added once the Python environment exists (Python version, dependency file, training and evaluation entry points).
+- Python 3.12 virtual environment in `.venv/`. Dependencies are in `requirements.txt`: `pip install -r requirements.txt`.
+- Run the menu from the project root: `python app.py`.
+- Train and save the default model: `python train.py` (saves to `models/latest/`).
+- One-time test evaluation, at the end only: `python evaluate_test.py <model name>`.
+- No lint or test commands exist yet.

@@ -4,7 +4,7 @@ Design and scope decisions for the IMDB sentiment classifier exam project
 ("Application of AI"). Each entry records what was decided and why, so the
 reasoning survives between sessions and can be defended at the exam.
 
-Last updated: 2026-11-08
+Last updated: 2026-11-11
 
 ---
 
@@ -92,12 +92,21 @@ Effect: the test accuracy may be slightly high for those 123 reviews,
 about 0.5% of the test set. Training code only reads the train split, so
 the test reviews are not used for training.
 
-**Save the last epoch, not the best validation epoch.** *2026-11-08*
+**Save the last epoch, not the best validation epoch.** *2026-11-08, superseded 2026-11-11*
 The model saved for the demo and the test evaluation is the one after the
 last epoch (10). The lowest validation loss was at epoch 9, but the
 difference is small, and saving the last epoch is simpler to explain. The
 alternative is in FUTURE_IMPROVEMENTS.md, "Save the best validation epoch
 instead of the last epoch".
+
+**Early stopping, and keeping the best validation epoch.** *2026-11-11*
+Training stops when the validation loss has not improved for 3 epochs in a row,
+with a maximum of 30 epochs. The weights from the epoch with the lowest validation
+loss are saved, not the last epoch. A stop rule of "training loss below 0.05" was
+tested first: it stopped at epoch 20 with a worse validation loss (0.3742 against
+0.2916) and accuracy (87.04% against 87.46%), so it was not chosen. Only validation
+data is used for the choice. See FUTURE_IMPROVEMENTS.md, "Save the best validation
+epoch instead of the last epoch" (now done).
 
 ---
 
@@ -124,6 +133,17 @@ deliberate scope decision.
 Negation ("not bad at all"), sarcasm, and mixed reviews are weak spots for a
 bag-of-embeddings model. Walking into the Q&A with sentences the model gets
 wrong, and an explanation of why, is stronger than claiming it works.
+
+**Command-line menu with prerequisite checks.** *2026-11-11*
+The menu has seven options: download the data, train, validate, save under a
+name, load by name, classify a review, and exit. Each option refuses with a
+message when its prerequisites are missing, such as the data or a model in
+memory. The menu never loads the test set; only evaluate_test.py does. Models
+are saved in models/<name>/, and names may contain only letters, digits, "-" and
+"_". There is no "untrained model" option, because training creates and trains
+the model in one step. The confidence shown is the model's own probability. It
+is often 100%, even for wrong answers such as "Not bad at all", which the demo
+can use to show the model's limits.
 
 ---
 
