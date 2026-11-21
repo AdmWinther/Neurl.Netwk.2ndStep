@@ -72,7 +72,9 @@ def download_option() -> None:
     # Run the download, and report a clear message if it fails, for example because there is no internet.
     try:
         download_data.main()
-    except Exception as error:
+    # Intentional broad catch: the download can fail in many ways when there is no internet,
+    # and the user should see the same clear message in every case. The error text is printed.
+    except Exception as error:  # noqa: BLE001
         print(f"Download failed: {error}. Check the internet connection and try again.")
         return
 

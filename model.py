@@ -3,6 +3,7 @@
 import torch
 from torch import nn
 
+
 # The SentimentModel class is a PyTorch neural network module that implements a simple sentiment analysis model
 # . It takes as input a batch of word IDs (representing reviews) and outputs a batch of sentiment scores (one for each review).
 class SentimentModel(nn.Module):

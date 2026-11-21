@@ -15,7 +15,7 @@ from split_data import load_train_validation_split
 PAD = "<pad>"  # fills short reviews up to MAX_LENGTH
 UNK = "<unk>"  # stands in for words that are not in the vocabulary
 VOCAB_SIZE = 20000
-MAX_LENGTH = 256
+MAX_LENGTH = 400
 
 # A token is a word (letters, digits, and an apostrophe, so "don't" stays one token)
 # or a single punctuation mark.

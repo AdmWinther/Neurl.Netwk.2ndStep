@@ -45,4 +45,5 @@ For training, IMDB Movie Review sentiment dataset will be used. Part of the data
 - Run the menu from the project root: `python app.py`.
 - Train and save the default model: `python train.py` (saves to `models/latest/`).
 - One-time test evaluation, at the end only: `python evaluate_test.py <model name>`.
-- No lint or test commands exist yet.
+- Lint from the project root: `ruff check .` (reports problems and changes no files). Use `ruff check --fix <file>` only after reading what it will change.
+- No test commands exist yet.

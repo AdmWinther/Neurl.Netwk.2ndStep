@@ -6,3 +6,5 @@
 torch==2.14.1
 numpy==2.5.4
 datasets==5.1.0
+# Development tool, not needed to run the program: the linter (`ruff check .`).
+ruff==0.17.5

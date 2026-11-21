@@ -4,7 +4,7 @@ Design and scope decisions for the IMDB sentiment classifier exam project
 ("Application of AI"). Each entry records what was decided and why, so the
 reasoning survives between sessions and can be defended at the exam.
 
-Last updated: 2026-11-11
+Last updated: 2026-11-21
 
 ---
 
@@ -83,6 +83,24 @@ library. Subword tokenization (BPE or WordPiece) is deferred; see
 FUTURE_IMPROVEMENTS.md, "Subword tokenization".
 Punctuation marks are kept as separate tokens, because marks such as `!`
 can signal sentiment.
+
+**Maximum review length: 400 word IDs (was 256).** *2026-11-18*
+Tested on the validation set with three seeds (42, 43, 44). At 256 the mean
+accuracy was 87.68% (loss 0.2918). At 400 it was 88.68% (loss 0.2744), and every
+400 run beat every 256 run. Longer lengths were also tested: 500 gave 88.91%
+(loss 0.2684) and 600 gave 88.93% (loss 0.2661). The gain flattens after 500.
+400 was chosen: it passes the agreed rule (a gain above the 0.4-point seed
+spread). 500 has a lower loss but a smaller accuracy gain (0.23 points), so it
+is kept as an option. About 18% of training reviews are still longer than 400
+words and are cut. Vocabulary size 40,000 gave no clear gain on its own (0.14
+points), so 20,000 stays.
+
+**Final test result (one-time evaluation).** *2026-11-21*
+The model `models/latest/` (maximum length 400, vocabulary 20,000, embedding 100,
+learning rate 0.001, early stopping at epoch 9) was evaluated once on the 25,000
+test reviews: test loss 0.2970, test accuracy 87.76%. Its validation accuracy was
+88.68%. The gap is expected, because settings were chosen on the validation set.
+The test set was not used for any choice. The result must not be re-run.
 
 **Duplicate reviews between training and test (IMDB dataset).** *2026-10-25*
 123 of the 25,000 test reviews have exact copies in the training split.
