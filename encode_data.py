@@ -65,7 +65,6 @@ def build_vocabulary(train_texts: list[str], size: int) -> dict[str, int]:
 # Output:
 #   list[int]: a list of numbers that the model can read. The list is of length max_length.
 def encode(text: str, vocab: dict[str, int], max_length: int = MAX_LENGTH) -> list[int]:
-    ids = [vocab.get(token, vocab[UNK]) for token in tokenize(text)][:max_length]
     ids = []
     # Fill the list with the IDs of the tokens in the text, up to max_length.
     # Break the text to words.
@@ -139,8 +138,16 @@ def main() -> None:
     
 
     for name, split in [("train", train), ("validation", validation)]:
-        tokens = [token for text in split["text"] for token in tokenize(text)]
-        unknown = sum(1 for token in tokens if token not in vocab)
+        # Collect every word of this split into one list, so the unknown words can be counted.
+        tokens = []
+        for text in split["text"]:
+            tokens.extend(tokenize(text))
+
+        # Count the words that are not in the vocabulary. The model sees these as the UNK token.
+        unknown = 0
+        for token in tokens:
+            if token not in vocab:
+                unknown += 1
         print("\n")
         print(f"{name}: {unknown / len(tokens):.2%} of words are unknown")
 
