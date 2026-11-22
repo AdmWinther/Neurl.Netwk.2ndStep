@@ -10,7 +10,11 @@ from datasets import DatasetDict, load_dataset
 
 DATA_DIR = Path("data") / "imdb"
 
-
+# Function: main
+#   Downloads the IMDB dataset from Hugging Face and saves it to data/imdb.
+#   The dataset is split into train and test, with 25,000 reviews each.
+# Input: None
+# Output: None
 def main() -> None:
     # Downloads from Hugging Face the first time, then reuses its own cache.
     full = load_dataset("stanfordnlp/imdb")
